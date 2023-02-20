@@ -69,3 +69,44 @@ def delete_user(id):
     db.session.delete(user)
     db.session.commit()
     return {"message": "deleted"}
+
+@app.route('/groups', methods=['GET'])
+def get_groups():
+    groups = Group.query.all()
+    output = []
+    for group in groups:
+        group_data = {'id': group.id, 'name': group.name, 'description': group.description}
+        output.append(group_data)
+    return {"groups": output}
+
+
+@app.route('/groups/<id>', methods=['GET'])
+def get_group(id):
+    group = Group.query.get_or_404(id)
+    return dict(id=group.id, name=group.name)
+
+@app.route('/groups', methods=['POST'])
+def add_group():
+    group = Group(name=request.json['name'],
+    description=request.json.get('description'))
+    db.session.add(group)
+    db.session.commit()
+    return {'id': group.id}
+
+@app.route('/groups/<id>', methods=['PUT'])
+def update_group(id):
+    group = Group.query.get(id)
+    group.name = request.json.get('name', group.name)
+    group.description = request.json.get('description', group.description)
+    db.session.commit()
+    return {"message": "updated"}
+
+@app.route('/groups/<id>', methods=['DELETE'])
+def delete_group(id):
+    group = Group.query.get(id)
+    db.session.delete(group)
+    db.session.commit()
+    return {"message": "deleted"}
+
+#if name == 'main':
+#app.run(debug=True)
