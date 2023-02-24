@@ -9,6 +9,8 @@ db = SQLAlchemy(app)
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
+    def __repr__(self):
+        return f"{self.name}"
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,11 +21,11 @@ class User(db.Model):
     group = db.relationship('Group', backref='users')
 
     def __repr__(self):
-        return f"{self.email} - {self.name}"
+        return f"{self.name} ({self.email})"
 
 @app.route('/')
 def index():
-    return 'Hello!'
+    return 'Welcome to a user and group management REST API service!'
 
 @app.route('/groups')
 def get_groups():
@@ -88,11 +90,10 @@ def get_user(id):
 
 @app.route('/users', methods=['POST'])
 def add_user():
-    user = User(name=request.json['name'],
-                email=request.json['email'],
-                group_id=request.json.get('group_id'))
+    user = User(email=request.json['email'], password=request.json['password'], name=request.json['name'], group_id=request.json.get('group_id'))
     db.session.add(user)
     db.session.commit()
+    return {'id': user.id}
 
 @app.route('/users/<id>', methods=['PUT'])
 def update_user(id):

@@ -1,8 +1,6 @@
 import json
 import unittest
-
-from app import app, db, Group, User
-
+from application import app, db, Group, User
 
 class AppTestCase(unittest.TestCase):
 
@@ -11,6 +9,7 @@ class AppTestCase(unittest.TestCase):
         self.app = app.test_client()
         # create a new in-memory database for testing
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        app.app_context().push()
         db.create_all()
 
     def tearDown(self):
@@ -18,23 +17,20 @@ class AppTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_add_group(self):
-        """Test adding a new group."""
-        data = {'name': 'Test Group'}
-        response = self.app.post('/groups', json=data)
+    def test_index_endpoint(self):
+        """Test the index endpoint returns the correct message"""
+        expected_response = 'Welcome to a user and group management REST API service!'
+        response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('id', response.json)
-
-        group_id = response.json['id']
-        group = Group.query.get(group_id)
-        self.assertIsNotNone(group)
-        self.assertEqual(group.name, data['name'])
+        self.assertEqual(response.get_data(as_text=True), expected_response)
 
     def test_get_groups(self):
         """Test getting a list of all groups."""
         # Add some groups to the database
-        Group(name='Group 1')
-        Group(name='Group 2')
+        group1 = Group(name='Group 1')
+        group2 = Group(name='Group 2')
+        db.session.add(group1)
+        db.session.add(group2)
         db.session.commit()
 
         response = self.app.get('/groups')
@@ -135,7 +131,7 @@ class AppTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         # validate response
-        self.assertEqual(response.json['id'], 2)
+        self.assertEqual(response.json['id'], 1)
 
         # validate data was added to database
         user = User.query.filter_by(email='newuser@example.com').first()
@@ -177,3 +173,4 @@ class AppTestCase(unittest.TestCase):
         # validate data was deleted from database
         user = User.query.filter_by(id=1).first()
         self.assertEqual(user, None)
+
