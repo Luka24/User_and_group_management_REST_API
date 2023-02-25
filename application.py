@@ -53,6 +53,9 @@ def get_group(id):
 
 @app.route('/groups', methods=['POST'])
 def add_group():
+    if 'name' not in request.json or not request.json['name']:
+        return {"error": "name field is required"}, 400
+
     group = Group(name=request.json['name'])
     db.session.add(group)
     db.session.commit()
@@ -61,6 +64,8 @@ def add_group():
 @app.route('/groups/<id>', methods=['PUT'])
 def update_group(id):
     group = Group.query.get(id)
+    if group is None:
+        return {"error": "not found"}
     group.name = request.json.get('name', group.name)
     db.session.commit()
     return {"message": "updated"}
@@ -68,6 +73,8 @@ def update_group(id):
 @app.route('/groups/<id>', methods=['DELETE'])
 def delete_group(id):
     group = Group.query.get(id)
+    if group is None:
+        return {"error": "not found"}
     db.session.delete(group)
     db.session.commit()
     return {"message": "deleted"}
@@ -90,6 +97,15 @@ def get_user(id):
 
 @app.route('/users', methods=['POST'])
 def add_user():
+    required_fields = ['email', 'password', 'name']
+    for field in required_fields:
+        if field not in request.json or not request.json[field]:
+            return {"error": f"{field} field is required"}, 400
+
+    if 'group_id' in request.json:
+        group = Group.query.get(request.json['group_id'])
+        if group is None:
+            return {"error": "invalid group_id"}, 400
     user = User(email=request.json['email'], password=request.json['password'], name=request.json['name'], group_id=request.json.get('group_id'))
     db.session.add(user)
     db.session.commit()
@@ -98,17 +114,26 @@ def add_user():
 @app.route('/users/<id>', methods=['PUT'])
 def update_user(id):
     user = User.query.get(id)
-    user.email = request.json.get('email', user.email)
-    user.password = request.json.get('password', user.password)
-    user.name = request.json.get('name', user.name)
-    user.group_id = request.json.get('group_id', user.group_id)
-    db.session.commit()
-    return {"message": "updated"}
+    if user is None:
+        return {"error": "not found"}
+
+    try:
+        user.email = request.json.get('email', user.email)
+        user.password = request.json.get('password', user.password)
+        user.name = request.json.get('name', user.name)
+        user.group_id = request.json.get('group_id', user.group_id)
+        db.session.commit()
+        return {"message": "updated"}
+    except Exception as e:
+        db.session.rollback()
+        return {"error": str(e)}
 
 
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_user(id):
     user = User.query.get(id)
+    if user is None:
+        return {"error": "not found"}
     db.session.delete(user)
     db.session.commit()
     return {"message": "deleted"}

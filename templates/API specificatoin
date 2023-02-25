@@ -1,0 +1,280 @@
+swagger: '2.0'
+info:
+  title: User and Group Management API
+  description: A REST API service for managing users and groups
+  version: '1.0'
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /:
+    get:
+      summary: Welcome message
+      description: Returns a welcome message for the API
+      responses:
+        '200':
+          description: A welcome message
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+      tags:
+        - Home
+
+  /groups:
+    get:
+      summary: Get all groups
+      description: Returns a list of all groups with their associated users
+      responses:
+        '200':
+          description: A list of groups with their users
+          schema:
+            type: object
+            properties:
+              groups:
+                type: array
+                items:
+                  $ref: '#/definitions/GroupWithUsers'
+      tags:
+        - Groups
+
+    post:
+      summary: Create a new group
+      description: Creates a new group with the provided name
+      parameters:
+        - name: group
+          in: body
+          description: Group object with a name field
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+      responses:
+        '200':
+          description: A group object with its ID
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+      tags:
+        - Groups
+
+  /groups/{id}:
+    get:
+      summary: Get a group by ID
+      description: Returns a group object with its associated users by ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the group to retrieve
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: A group object with its users
+          schema:
+            $ref: '#/definitions/GroupWithUsers'
+        '404':
+          description: Group not found
+      tags:
+        - Groups
+
+    put:
+      summary: Update a group by ID
+      description: Updates the name of a group by ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the group to update
+          required: true
+          type: integer
+        - name: group
+          in: body
+          description: Group object with a name field
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+      responses:
+        '200':
+          description: Success message
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        '404':
+          description: Group not found
+      tags:
+        - Groups
+
+    delete:
+      summary: Delete a group by ID
+      description: Deletes a group and all of its associated users by ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the group to delete
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Success message
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        '404':
+          description: Group not found
+      tags:
+        - Groups
+
+  /users:
+    get:
+      summary: Get all users
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      description: User email
+                    password:
+                      type: string
+                      description: User password
+                    name:
+                      type: string
+                      description: User name
+                    group_id:
+                      type: integer
+                      description: ID of the group that the user belongs to
+    post:
+      summary: Add a new user
+      parameters:
+        - in: body
+          name: body
+          description: User object to be added
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: User email
+              password:
+                type: string
+                description: User password
+              name:
+                type: string
+                description: User name
+              group_id:
+                type: integer
+                description: ID of the group that the user belongs to
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: ID of the newly created user
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: Error message
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID of the user
+        required: true
+        type: integer
+    get:
+      summary: Get a user by ID
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: User name
+              email:
+                type: string
+                description: User email
+              group:
+                type: string
+                description: Group that the user belongs to
+        '404':
+          description: Not Found
+    put:
+      summary: Update a user by ID
+      parameters:
+        - in: body
+          name: body
+          description: User object to be updated
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: User email
+              password:
+                type: string
+                description: User password
+              name:
+                type: string
+                description: User name
+              group_id:
+                type: integer
+                description: ID of the group that the user belongs to
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Success message
+        '404':
+          description: Not Found
+    delete:
+      summary: Delete a user by ID
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Success message
+        '404':
+          description: Not Found
