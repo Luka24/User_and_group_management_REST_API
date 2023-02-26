@@ -2,6 +2,7 @@ User and Group Management REST API Service
 ==========================================
 
 This is a REST API service that provides a way to list, add, modify, and remove users and groups. Each user can belong to at most one group.
+Here is the link to Docker Hub repository: https://hub.docker.com/r/luka24/user_and_group_management_restapi
 <br />
 
 
@@ -22,6 +23,7 @@ Data Model
 -   Group
 
 <br />
+
 
 Endpoints
 ---------
@@ -241,4 +243,27 @@ Example response:
     "message": "deleted"
 }`
 
+
 <br />
+<br />
+<br />
+
+`Here is how I approached the project:`
+----------
+
+0\. online research, made a simple project while watching a YouTube video
+
+1\. commit - creating database
+
+2\. commit - creating endpoints for users
+
+3\. commit - creating endpoints for groups
+
+4\. commit - writing tests, get_groups() improved, the database was modified to correct data model
+
+5\. commit - tests improved, minor changes
+
+6\. commit - error handling, API specification
+
+7\. commit - Dockerfile, some files have been moved
+Here is how I approached to the project:
