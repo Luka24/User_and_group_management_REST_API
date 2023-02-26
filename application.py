@@ -9,6 +9,7 @@ db = SQLAlchemy(app)
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
+
     def __repr__(self):
         return f"{self.name}"
 
@@ -21,7 +22,7 @@ class User(db.Model):
     group = db.relationship('Group', backref='users')
 
     def __repr__(self):
-        return f"{self.name} ({self.email})"
+        return f"{self.name}{self.email})"
 
 @app.route('/')
 def index():
@@ -88,12 +89,10 @@ def get_users():
         output.append(user_data)
     return {"users": output}
 
-
 @app.route('/users/<id>')
 def get_user(id):
     user = User.query.get_or_404(id)
     return {"name": user.name, "email": user.email, "group": user.group.name if user.group else None}
-
 
 @app.route('/users', methods=['POST'])
 def add_user():
@@ -128,7 +127,6 @@ def update_user(id):
         db.session.rollback()
         return {"error": str(e)}
 
-
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_user(id):
     user = User.query.get(id)
@@ -139,4 +137,4 @@ def delete_user(id):
     return {"message": "deleted"}
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
