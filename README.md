@@ -266,4 +266,3 @@ Example response:
 6\. commit - error handling, API specification
 
 7\. commit - Dockerfile, some files have been moved
-Here is how I approached to the project:
